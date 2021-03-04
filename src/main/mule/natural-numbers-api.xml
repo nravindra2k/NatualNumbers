@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="28780c4a-a790-44bc-b90e-81a97cee6c15" >
+		<http:listener-connection host="0.0.0.0" port="8085" />
+	</http:listener-config>
+	<flow name="natural-numbers-apiFlow" doc:id="c3439cb6-9961-4cad-872c-1e6c5a35f89b" >
+		<http:listener doc:name="Listener" doc:id="e5c8b1c3-422f-4dc0-b5e1-226fa5a6e3e4" config-ref="HTTP_Listener_config" path="/nseries/{n}"/>
+		<ee:transform doc:name="Transform Message" doc:id="684f8e2e-9523-4997-bc9b-e512c77957d0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output text/plain
+var series= (1 to attributes.uriParams.n map $) 
+---
+"Output::" ++ write(series, "application/json") replace '\n' with ''
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="f960279a-bea1-42fe-a5f2-5d6e2c4700b8" message="#[payload]"/>
+	</flow>
+</mule>
